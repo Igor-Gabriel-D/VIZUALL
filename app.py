@@ -1,32 +1,47 @@
-# from flask import Flask, render_template, request
-from flask import Flask, render_template, request, url_for
+from flask import Flask, render_template, request, url_for, jsonify
 import paho.mqtt.client as mqtt
 from deepface import DeepFace
-
-# from flask_cors import CORS
+# from time import sleep
 import os
+import requests
+import subprocess
+import json
+from datetime import datetime  # Para registrar a hora atual
 
-# Define as funções de callback
-def on_connect(client, userdata, flags, rc):
-    print("Conectado ao broker com código: " + str(rc))
 
-def on_message(client, userdata, message):
-    print("Mensagem recebida: " + str(message.payload.decode("utf-8")))
+# Função para registrar o log
+def registrar_log(usuario, bloco, sala):
+    log_entry = {
+        "horario": datetime.now().strftime("%Y%m%d%H%M%S"),  # Timestamp formatado
+        "usuario": usuario,
+        "bloco": bloco,
+        "sala": sala
+    }
 
-# Cria um cliente MQTT
-client = mqtt.Client()
+    # Verifica se o arquivo de log existe e lê o conteúdo existente
+    try:
+        with open('log_acessos.json', 'r') as file:
+            logs = json.load(file)
+    except FileNotFoundError:
+        logs = []  # Se o arquivo não existir, inicia uma lista vazia
 
-# Define as funções de callback
-client.on_connect = on_connect
-client.on_message = on_message
+    # Adiciona o novo log
+    logs.append(log_entry)
 
-# Conecta-se ao broker
-client.connect("broker.hivemq.com", 1883, 60)
+    # Salva o log atualizado de volta no arquivo
+    with open('log_acessos.json', 'w') as file:
+        json.dump(logs, file, indent=4)
+
+
+
+
+# Função para enviar mensagens MQTT
+def publish_message(topic, message):
+    command = ['mosquitto_pub', '-h', '20.68.52.33', '-t', topic, '-m', message]
+    subprocess.run(command, check=True)
 
 
 app = Flask(__name__)
-# CORS(app, resources={r"/*": {"origins": "*"}})
-
 UPLOAD_FOLDER = 'static/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -38,7 +53,6 @@ def index():
         if 'imagem' in request.files:
             imagem = request.files['imagem']
 
-            # Salva a imagem no diretório definido
             if imagem.filename != '':
                 imagem.save(os.path.join(app.config['UPLOAD_FOLDER'], imagem.filename))
                 print(f'Imagem salva: {imagem.filename}')
@@ -48,46 +62,49 @@ def index():
             try:
                 dfs = DeepFace.find(
                     img_path=f"static/uploads/{imagem.filename}",
-                    db_path="./usuarios",
-                    enforce_detection=True  # Você pode alterar isso para False se desejar
+                    db_path="./usuarios"
                 )
 
                 if dfs[0]['identity'].notnull().any():
-                    print(dfs[0]['identity'])
-                    client.publish("bloco/1/sala/1/acesso", "liberado")
+                    usuario = dfs[0]['identity'].iloc[0]  # Obtém o primeiro usuário identificado
+                    print(usuario)
+                    
+                    publish_message("bloco/1/sala/1/acesso", "liberado")
 
-                    return f"""
-                        <h1>Acesso liberado</h1>
-                        <img src="{imagem_path}" alt="Imagem carregada">
-                    """
+                    # Registra o log de acesso com usuário identificado, bloco e sala
+                    registrar_log(usuario=usuario, bloco="66c71de92bcf9624eb462599", sala="1")
+
+                    return jsonify({
+                        "mensagem": "Acesso liberado",
+                        "imagem_path": imagem_path
+                    })
                 else:
-                    return "<h1>Acesso restrito</h1>"
-            except ValueError as e:
-                # Se a detecção de rosto falhar, retorna uma mensagem apropriada
+                    return jsonify({
+                        "mensagem": "Acesso restrito",
+                        "imagem_path": imagem_path
+                    })
+            except Exception as e:
                 print(f"Erro: {e}")
-                return "<h1>Acesso restrito</h1><p>Não foi possível detectar um rosto na imagem.</p>"
+                return jsonify({
+                    "mensagem": "Acesso restrito: Não foi possível detectar um rosto na imagem.",
+                    "imagem_path": None
+                })
         else:
-            return """
-                <h1>Informações Recebidas</h1>
-                <p>Nenhuma imagem carregada.</p>
-            """
-    return """<!DOCTYPE html>
-              <html lang="pt-br">
-              <head>
-                  <meta charset="UTF-8">
-                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                  <title>Formulário</title>
-              </head>
-              <body>
-                  <h1>Vizuall</h1>
+            return jsonify({
+                "mensagem": "Nenhuma imagem carregada",
+                "imagem_path": None
+            })
+    return render_template('index.html')
 
-                  <form method="POST" action="" enctype="multipart/form-data">
-                      <label for="imagem">Escolha uma imagem:</label>
-                      <input type="file" id="imagem" name="imagem"><br><br>
-                      <input type="submit" value="Enviar">
-                  </form>
-              </body>
-              </html>
-          """
+@app.route('/salas', methods=['GET'])
+def get_blocos():
+    try:
+        with open('db/salas.json', 'r') as file:
+            blocos_data = json.load(file)  # Lê o conteúdo do arquivo JSON
+        return jsonify(blocos_data)
+    except FileNotFoundError:
+        return jsonify({"error": "Arquivo blocos.json não encontrado"}), 404
+
+
 if __name__ == '__main__':
     app.run(debug=False, port=8000)

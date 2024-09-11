@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vizuall Cam</title>
+</head>
+<body>
+    <h1>Vizuall Cam</h1>
+
+    <h3 id="acesso">Esperando...</h3>
+    <video id="video" autoplay style="display: none"></video>
+    <canvas id="canvas" width="300px" height="320px"></canvas>
+
+
+</body>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</html>
