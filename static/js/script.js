@@ -29,7 +29,9 @@ function enviarImagemCanvas() {
     canvas.toBlob(function(blob) {
       const formData = new FormData();
       formData.append('imagem', blob, 'canvas-image.png');
+
       analysing = true;  
+      elementoAcesso.innerHTML = `<h3 id="acesso">Analisando<span class="dots"></span></h3>`
       // Enviar a imagem via fetch
       fetch('https://8000-igorgabrield-vizuall-dv6v706z18w.ws-us116.gitpod.io/', {
         method: 'POST',
@@ -40,8 +42,13 @@ function enviarImagemCanvas() {
         console.log('Resposta do servidor:', data);
         // Exemplo de manipulação da resposta JSON
         analysing = false;
-        detectedFace = false;
-        elementoAcesso.innerHTML = `<p>${data.mensagem}</p>`;
+        // detectedFace = false;
+        elementoAcesso.innerHTML = `<h3>${data.mensagem}</h3>`;
+        if(data.mensagem == "Acesso liberado"){
+            color = "green"
+        } else {
+            color = "red"
+        }
       })
       .catch(error => console.error('Erro ao enviar a imagem:', error));
 
@@ -58,37 +65,36 @@ const detectFaces = async () => {
 
   ctx.drawImage(video, 0, 0, 280, 320);
 
-  predictions.forEach((prediction) => {
+    predictions.forEach((prediction) => {
 
-    // Drawing rectangle that'll detect the face
-    ctx.beginPath();
-    ctx.lineWidth = "4";
-    ctx.strokeStyle = color;
-    ctx.rect(
-      prediction.topLeft[0],
-      prediction.topLeft[1],
-      prediction.bottomRight[0] - prediction.topLeft[0],
-      prediction.bottomRight[1] - prediction.topLeft[1]
-    );
-    // The last two arguments denotes the width and height
-    // but since the blazeface models only returns the coordinates  
-    // so we have to subtract them in order to get the width and height
-    ctx.stroke();
-  });
+        // Drawing rectangle that'll detect the face
+        ctx.beginPath();
+        ctx.lineWidth = "4";
+        ctx.strokeStyle = color;
+        ctx.rect(
+        prediction.topLeft[0],
+        prediction.topLeft[1],
+        prediction.bottomRight[0] - prediction.topLeft[0],
+        prediction.bottomRight[1] - prediction.topLeft[1]
+        );
+        // The last two arguments denotes the width and height
+        // but since the blazeface models only returns the coordinates  
+        // so we have to subtract them in order to get the width and height
+        ctx.stroke();
+    });
 
-  if(!detectedFace){
-    detectedFace = false;
-    console.log("aaaa")
-  }
-  if(predictions.length && !detectedFace && !analysing){
+    if(!predictions.length && elementoAcesso.innerHTML != `<h3 id="acesso">Esperando<span class="dots"></span></h3>`){
+      detectedFace = false;
+      elementoAcesso.innerHTML = `<h3 id="acesso">Esperando<span class="dots"></span></h3>`
+      color = "yellow"
+    }
     
-    console.log("bbbb")
-    detectedFace = true;
-    setTimeout(() => { enviarImagemCanvas() }, 5000);
+    if(predictions.length && !detectedFace && !analysing){
+        detectedFace = true;
+        setTimeout(() => { enviarImagemCanvas() }, 5000);
     
-  }
+    }
 
-  console.log(predictions.length, !detectedFace, !analysing)
 };
 
 accessCamera();

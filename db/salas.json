@@ -1,0 +1,51 @@
+[
+    {
+      "_id": "66c71de92bcf9624eb462599",
+      "nome_bloco": "Bloco 1",
+      "bloco": {
+        "salas": [
+          {
+            "sala_id": "1",
+            "nome_sala": "Laboratório de redes"
+          },
+          {
+            "sala_id": "2",
+            "nome_sala": "Laboratório de manutenção"
+          }
+        ]
+      }
+    },
+    {
+      "_id": "66c71de92bcf9624eb4625a0",
+      "nome_bloco": "Bloco 2",
+      "bloco": {
+        "salas": [
+          {
+            "sala_id": "3",
+            "nome_sala": "Sala de estudos"
+          },
+          {
+            "sala_id": "4",
+            "nome_sala": "Sala de conferências"
+          }
+        ]
+      }
+    },
+    {
+      "_id": "66c71de92bcf9624eb4625a1",
+      "nome_bloco": "Bloco 3",
+      "bloco": {
+        "salas": [
+          {
+            "sala_id": "5",
+            "nome_sala": "Laboratório de informática"
+          },
+          {
+            "sala_id": "6",
+            "nome_sala": "Biblioteca"
+          }
+        ]
+      }
+    }
+]
+  

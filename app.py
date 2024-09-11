@@ -20,7 +20,7 @@ def registrar_log(usuario, bloco, sala):
 
     # Verifica se o arquivo de log existe e lê o conteúdo existente
     try:
-        with open('log_acessos.json', 'r') as file:
+        with open('db/logs.json', 'r') as file:
             logs = json.load(file)
     except FileNotFoundError:
         logs = []  # Se o arquivo não existir, inicia uma lista vazia
@@ -29,7 +29,7 @@ def registrar_log(usuario, bloco, sala):
     logs.append(log_entry)
 
     # Salva o log atualizado de volta no arquivo
-    with open('log_acessos.json', 'w') as file:
+    with open('db/logs.json', 'w') as file:
         json.dump(logs, file, indent=4)
 
 
@@ -66,13 +66,13 @@ def index():
                 )
 
                 if dfs[0]['identity'].notnull().any():
-                    usuario = dfs[0]['identity'].iloc[0]  # Obtém o primeiro usuário identificado
+                    usuario = dfs[0]['identity'].iloc[0][11:35]  # Obtém o primeiro usuário identificado
                     print(usuario)
                     
                     publish_message("bloco/1/sala/1/acesso", "liberado")
 
                     # Registra o log de acesso com usuário identificado, bloco e sala
-                    registrar_log(usuario=usuario, bloco="66c71de92bcf9624eb462599", sala="1")
+                    registrar_log( usuario, "66c71de92bcf9624eb462599", "1")
 
                     return jsonify({
                         "mensagem": "Acesso liberado",
@@ -104,6 +104,47 @@ def get_blocos():
         return jsonify(blocos_data)
     except FileNotFoundError:
         return jsonify({"error": "Arquivo blocos.json não encontrado"}), 404
+
+@app.route('/sala', methods=['GET'])
+def get_sala():
+    # Obtém os parâmetros de bloco e sala da URL
+    bloco_param = request.args.get('bloco')
+    sala_param = request.args.get('sala')
+
+    if not bloco_param or not sala_param:
+        return jsonify({"error": "Parâmetros 'bloco' e 'sala' são necessários"}), 400
+
+    try:
+        # Lê o conteúdo dos arquivos de log e usuários
+        with open('db/logs.json', 'r') as file:
+            logs = json.load(file)
+        with open('db/usuarios.json', 'r') as file:
+            usuarios = json.load(file)
+
+        # Filtra os logs pelo bloco e sala fornecidos
+        logs_filtrados = [
+            log for log in logs
+            if str(log.get('bloco')) == str(bloco_param) and str(log.get('sala')) == str(sala_param)
+        ]
+
+        # Mapeia o ID do usuário para o nome a partir do arquivo de usuários
+        usuario_map = {usuario['id']: usuario['nome'] for usuario in usuarios}
+
+        # Constrói a resposta com o nome do usuário e o horário do log
+        resultado = []
+        for log in logs_filtrados:
+            nome_usuario = usuario_map.get(log['usuario'], "Usuário não encontrado")
+            resultado.append({
+                "nome": nome_usuario,
+                "horario": log['horario']
+            })
+
+        return jsonify(resultado)
+
+    except FileNotFoundError:
+        return jsonify({"error": "Arquivo não encontrado"}), 404
+    except json.JSONDecodeError:
+        return jsonify({"error": "Erro ao decodificar o arquivo JSON"}), 500
 
 
 if __name__ == '__main__':
