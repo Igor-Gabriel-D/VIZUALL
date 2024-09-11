@@ -13,6 +13,18 @@
     <video id="video" autoplay style="display: none"></video>
     <canvas id="canvas" width="300px" height="320px"></canvas>
 
+    <div class="container">
+        <label for="select-bloco">Selecione o Bloco:</label>
+        <select id="select-bloco" onchange="atualizarSalas()">
+          <option value="">Escolha um bloco</option>
+        </select>
+      
+        <label for="select-sala">Selecione a Sala:</label>
+        <select id="select-sala">
+          <option value="">Escolha uma sala</option>
+        </select>
+    </div>
+      
 
 </body>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>

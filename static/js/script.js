@@ -103,3 +103,57 @@ video.addEventListener("loadeddata", async () => {
   // Calling the detectFaces every 40 millisecond
   setInterval(detectFaces, 100);
 });
+function carregarBlocos() {
+    fetch('/salas')
+    .then(response => response.json())
+      .then(data => {
+        const selectBloco = document.getElementById('select-bloco');
+  
+        // Preenche o select de blocos
+        data.forEach(bloco => {
+          const option = document.createElement('option');
+          option.value = bloco._id; // Supondo que cada bloco tenha um campo "id"
+          option.textContent = bloco.nome_bloco; // Supondo que cada bloco tenha um campo "nome"
+          selectBloco.appendChild(option);
+        });
+      })
+      .catch(error => console.error('Erro ao carregar blocos:', error));
+}
+  
+function atualizarSalas() {
+    const blocoId = document.getElementById('select-bloco').value;
+    const selectSala = document.getElementById('select-sala');
+  
+    // Limpa o select de salas
+    selectSala.innerHTML = '<option value="">Escolha uma sala</option>';
+  
+    if (blocoId) {
+      fetch('/salas')
+        .then(response => response.json())
+        .then(data => {
+          // Encontra o bloco selecionado
+          console.log(data)
+          const blocoSelecionado = data.find(bloco => bloco._id === blocoId);
+
+          console.log(blocoId)
+
+          console.log(blocoSelecionado)
+          // Preenche o select de salas para o bloco selecionado
+          if (blocoSelecionado && blocoSelecionado.bloco.salas) {
+            console.log("aaaa")
+            blocoSelecionado.bloco.salas.forEach(sala => {
+              const option = document.createElement('option');
+              option.value = sala.sala_id; // Supondo que cada sala tenha um campo "id"
+              option.textContent = sala.nome_sala; // Supondo que cada sala tenha um campo "nome"
+              selectSala.appendChild(option);
+            });
+          }
+        })
+        .catch(error => console.error('Erro ao carregar salas:', error));
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    carregarBlocos();
+});
+      
