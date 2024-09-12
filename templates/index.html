@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -30,4 +30,38 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface"></script>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</html> -->
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>Vizuall Cam</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Vizuall Cam</h1>
+
+        <h3 id="acesso">Esperando<span class="dots"></span></h3>
+        <video id="video" autoplay style="display: none;"></video>
+        <canvas id="canvas"></canvas>
+
+        <div class="form-container">
+            <label for="select-bloco">Selecione o Bloco:</label>
+            <select id="select-bloco" onchange="atualizarSalas()">
+                <option value="">Escolha um bloco</option>
+            </select>
+            
+            <label for="select-sala">Selecione a Sala:</label>
+            <select id="select-sala">
+                <option value="">Escolha uma sala</option>
+            </select>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
 </html>

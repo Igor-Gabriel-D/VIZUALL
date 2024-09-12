@@ -45,58 +45,6 @@ app = Flask(__name__)
 UPLOAD_FOLDER = 'static/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# @app.route('/', methods=['GET', 'POST'])
-# def index():
-#     if request.method == 'POST':
-#         imagem_path = None
-#         bloco_param = request.form.get('bloco')
-#         sala_param = request.form.get('sala')
-
-#         if 'imagem' in request.files:
-#             imagem = request.files['imagem']
-
-#             if imagem.filename != '':
-#                 imagem.save(os.path.join(app.config['UPLOAD_FOLDER'], imagem.filename))
-#                 print(f'Imagem salva: {imagem.filename}')
-#                 imagem_path = url_for('static', filename=f'uploads/{imagem.filename}')
-
-#         if imagem_path:
-#             try:
-#                 dfs = DeepFace.find(
-#                     img_path=f"static/uploads/{imagem.filename}",
-#                     db_path="./usuarios"
-#                 )
-
-#                 if dfs[0]['identity'].notnull().any():
-#                     usuario = dfs[0]['identity'].iloc[0][11:35]  # Obtém o primeiro usuário identificado
-#                     print(usuario)
-                    
-#                     publish_message(f"bloco/{bloco_param}/sala/{sala_param}/acesso", "liberado")
-
-#                     # Registra o log de acesso com usuário identificado, bloco e sala
-#                     registrar_log( usuario, f"{bloco_param}", f"{sala_param}")
-
-#                     return jsonify({
-#                         "mensagem": "Acesso liberado",
-#                         "imagem_path": imagem_path
-#                     })
-#                 else:
-#                     return jsonify({
-#                         "mensagem": "Acesso restrito",
-#                         "imagem_path": imagem_path
-#                     })
-#             except Exception as e:
-#                 print(f"Erro: {e}")
-#                 return jsonify({
-#                     "mensagem": "Acesso restrito: Não foi possível detectar um rosto na imagem.",
-#                     "imagem_path": None
-#                 })
-#         else:
-#             return jsonify({
-#                 "mensagem": "Nenhuma imagem carregada",
-#                 "imagem_path": None
-#             })
-#     return render_template('index.html')
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
@@ -154,6 +102,7 @@ def index():
                             "imagem_path": imagem_path
                         })
                     else:
+                        publish_message(f"bloco/{bloco_param}/sala/{sala_param}/acesso", "trancado")
                         return jsonify({
                             "mensagem": "Acesso restrito: Usuário sem permissão para esta sala.",
                             "imagem_path": imagem_path
