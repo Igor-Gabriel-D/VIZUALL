@@ -6,11 +6,13 @@
         "salas": [
           {
             "sala_id": "1",
-            "nome_sala": "Laboratório de redes"
+            "nome_sala": "Laboratório de redes",
+            "permissoes": ["66c737a32bcf9624eb46259b", "66c7373b2bcf9624eb46259a"]
           },
           {
             "sala_id": "2",
-            "nome_sala": "Laboratório de manutenção"
+            "nome_sala": "Laboratório de manutenção",
+            "permissoes": ["66c737a32bcf9624eb46259b"]
           }
         ]
       }
@@ -22,11 +24,13 @@
         "salas": [
           {
             "sala_id": "3",
-            "nome_sala": "Sala de estudos"
+            "nome_sala": "Sala de estudos",
+            "permissoes": ["66c7373b2bcf9624eb46259a"]
           },
           {
             "sala_id": "4",
-            "nome_sala": "Sala de conferências"
+            "nome_sala": "Sala de conferências",
+            "permissoes": []
           }
         ]
       }
@@ -38,11 +42,13 @@
         "salas": [
           {
             "sala_id": "5",
-            "nome_sala": "Laboratório de informática"
+            "nome_sala": "Laboratório de informática",
+            "permissoes": ["66c737a32bcf9624eb46259b", "66c7373b2bcf9624eb46259a"]
           },
           {
             "sala_id": "6",
-            "nome_sala": "Biblioteca"
+            "nome_sala": "Biblioteca",
+            "permissoes": ["66c737a32bcf9624eb46259b", "66c7373b2bcf9624eb46259a"]
           }
         ]
       }

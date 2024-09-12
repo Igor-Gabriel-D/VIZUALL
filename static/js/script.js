@@ -26,33 +26,47 @@ const accessCamera = () => {
 };
 
 function enviarImagemCanvas() {
-    canvas.toBlob(function(blob) {
-      const formData = new FormData();
-      formData.append('imagem', blob, 'canvas-image.png');
+        // Captura os valores dos selects de bloco e sala
+    const blocoId = document.getElementById('select-bloco').value;
+    const salaId = document.getElementById('select-sala').value;
+    // Verifica se os valores foram selecionados
+    if (!blocoId || !salaId) {
+        console.log("Por favor, selecione um bloco e uma sala.");
+        elementoAcesso.innerHTML = `<h3 id="acesso">Por favor, selecione um bloco e uma sala.</h3>`
 
-      analysing = true;  
-      elementoAcesso.innerHTML = `<h3 id="acesso">Analisando<span class="dots"></span></h3>`
-      // Enviar a imagem via fetch
-      fetch('https://8000-igorgabrield-vizuall-dv6v706z18w.ws-us116.gitpod.io/', {
-        method: 'POST',
-        body: formData
-      })
-      .then(response => response.json()) // Agora esperamos um JSON
-      .then(data => {
-        console.log('Resposta do servidor:', data);
-        // Exemplo de manipulação da resposta JSON
-        analysing = false;
-        // detectedFace = false;
-        elementoAcesso.innerHTML = `<h3>${data.mensagem}</h3>`;
-        if(data.mensagem == "Acesso liberado"){
-            color = "green"
-        } else {
-            color = "red"
-        }
-      })
-      .catch(error => console.error('Erro ao enviar a imagem:', error));
+    } else {
 
-    }, 'image/png');
+        canvas.toBlob(function(blob) {
+          const formData = new FormData();
+          formData.append('imagem', blob, 'canvas-image.png');
+          formData.append('bloco', blocoId);
+          formData.append('sala', salaId);
+    
+          analysing = true;  
+          elementoAcesso.innerHTML = `<h3 id="acesso">Analisando<span class="dots"></span></h3>`
+          // Enviar a imagem via fetch
+          fetch('https://8000-igorgabrield-vizuall-dv6v706z18w.ws-us116.gitpod.io/', {
+            method: 'POST',
+            body: formData
+          })
+          .then(response => response.json()) // Agora esperamos um JSON
+          .then(data => {
+            console.log('Resposta do servidor:', data);
+            // Exemplo de manipulação da resposta JSON
+            analysing = false;
+            // detectedFace = false;
+            elementoAcesso.innerHTML = `<h3>${data.mensagem}</h3>`;
+            if(data.mensagem == "Acesso liberado"){
+                color = "green"
+            } else {
+                color = "red"
+            }
+          })
+          .catch(error => console.error('Erro ao enviar a imagem:', error));
+    
+        }, 'image/png');
+    }
+
 }
   
 
@@ -132,15 +146,12 @@ function atualizarSalas() {
         .then(response => response.json())
         .then(data => {
           // Encontra o bloco selecionado
-          console.log(data)
           const blocoSelecionado = data.find(bloco => bloco._id === blocoId);
 
-          console.log(blocoId)
-
-          console.log(blocoSelecionado)
+  
           // Preenche o select de salas para o bloco selecionado
           if (blocoSelecionado && blocoSelecionado.bloco.salas) {
-            console.log("aaaa")
+   
             blocoSelecionado.bloco.salas.forEach(sala => {
               const option = document.createElement('option');
               option.value = sala.sala_id; // Supondo que cada sala tenha um campo "id"
