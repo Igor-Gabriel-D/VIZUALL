@@ -9,4 +9,4 @@ Projeto Integrador II
 após isso todos os 6 testes devem passar como foi executado anteriormente durante a apresentação do projeto
 
 
-![testes executados](./"Captura de tela de 2024-09-18 19-49-48.png")
+![testes executados](./testesimg.png)
